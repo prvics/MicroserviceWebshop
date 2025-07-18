@@ -34,7 +34,7 @@ public class InMemoryProductRepository : IProductRepository
     public void Update(Product product)
     {
         var existing = GetProduct(product.Id);
-        if (existing == null) return;
+        if (existing == null) throw new InvalidOperationException($"Product with id {product.Id} does not exist.");
         existing.Name = product.Name;
         existing.Price = product.Price;
         existing.Description = product.Description;
@@ -44,7 +44,7 @@ public class InMemoryProductRepository : IProductRepository
     public void Delete(int id)
     {
         var product = GetProduct(id);
-        if (product == null) return;
+        if (product == null) throw new InvalidOperationException($"Product with id {id} does not exist.");
         _products.Remove(product);
     }
 }
