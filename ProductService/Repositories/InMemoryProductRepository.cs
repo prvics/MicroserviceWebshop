@@ -25,7 +25,9 @@ public class InMemoryProductRepository : IProductRepository
 
     public void Add(Product product)
     {
-        product.Id = _products.Count > 0 ? _products.Max(p => p.Id) + 1 : 1;
+        if (product.Id == 0) product.Id = _products.Count > 0 ? _products.Max(p => p.Id) + 1 : 1;
+        if (_products.Any(p => p.Id == product.Id))
+            throw new InvalidOperationException($"Product with id {product.Id} already exists.");
         _products.Add(product);
     }
 

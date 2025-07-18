@@ -12,7 +12,9 @@ public class ProductController(IProductService _productService) : ControllerBase
     [HttpGet]
     public ActionResult GetAll()
     {
-        return Ok(_productService.GetAll());
+        var products = _productService.GetAll();
+        if (products == null || !products.Any()) return NotFound();
+        return Ok(products);
     }
     
     [HttpGet("{id}")]
@@ -26,8 +28,20 @@ public class ProductController(IProductService _productService) : ControllerBase
     [HttpPost]
     public IActionResult Create(Product product)
     {
-        _productService.Add(product);
-        return CreatedAtAction(nameof(GetProduct), new {id = product.Id}, product);
+        try
+        {
+            _productService.Add(product);
+            return CreatedAtAction(nameof(GetProduct), new { id = product.Id }, product);
+        }
+        catch (InvalidOperationException e) when (e.Message.Contains("already exists"))
+        {
+            return Conflict(e.Message);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            return StatusCode(500);
+        }
     }
     
     [HttpPut("{id}")]
